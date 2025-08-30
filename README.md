@@ -2,7 +2,7 @@
 
 This is my _home made_ graphics engine library.
 
-Based on my [OpenGL Playground](https://github.com/Azrielx86/OpenGL_Playground) project to use it on multiple programs.
+Based on my [OpenGL Playground](https://github.com/Azrielx86/OpenGL_Playground_Base) project to use it on multiple programs.
 
 ## How to use
 
