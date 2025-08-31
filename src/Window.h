@@ -11,6 +11,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <array>
 
 #include <vector>
 
