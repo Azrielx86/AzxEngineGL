@@ -96,8 +96,6 @@ add_library(AzxEngineGL STATIC
         src/GlobalDefines.h
         src/Resources/ResourceManager.cpp
         src/Resources/ResourceManager.h
-        src/ParticleInstancer.cpp
-        src/ParticleInstancer.h
         src/Resources/Material.cpp
         src/Resources/Material.h
         src/Skybox.cpp
@@ -110,8 +108,6 @@ add_library(AzxEngineGL STATIC
         src/StorageBufferDynamicArray.cpp
         src/StorageBufferDynamicArray.h
         src/Gizmos/GizmoBase.h
-        src/World/Entity.cpp
-        src/World/Entity.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
