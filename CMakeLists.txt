@@ -108,6 +108,24 @@ add_library(AzxEngineGL STATIC
         src/StorageBufferDynamicArray.cpp
         src/StorageBufferDynamicArray.h
         src/Gizmos/GizmoBase.h
+        src/ECS/Registry.cpp
+        src/ECS/Registry.h
+        src/ECS/Types.h
+        src/ECS/Components/Transform.h
+        src/ECS/Components/MeshRenderer.h
+        src/ECS/ISystem.h
+        src/TimeManager.cpp
+        src/TimeManager.h
+        src/ECS/ComponentArray.cpp
+        src/ECS/ComponentArray.h
+        src/ECS/IComponentArray.h
+        src/ECS/Systems/RenderSystem.h
+        src/ECS/Systems/RenderSystem.cpp
+        src/ECS/SystemManager.cpp
+        src/ECS/SystemManager.h
+        src/ECS/Systems/PlayerControlSystem.cpp
+        src/ECS/Systems/PlayerControlSystem.h
+        src/ECS/Components/PlayerController.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
