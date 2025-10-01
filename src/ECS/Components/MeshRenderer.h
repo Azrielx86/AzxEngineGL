@@ -10,8 +10,8 @@ namespace ECS::Components
 {
 struct MeshRenderer
 {
-	std::shared_ptr<Model> model;
-    std::shared_ptr<Shader> shader;
+	Model* model;
+    Shader* shader;
 };
 } // namespace ECS::Components
 

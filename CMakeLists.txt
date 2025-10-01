@@ -9,6 +9,16 @@ if (FIX_ASSIMP_MEMCALL)
     set(CMAKE_CXX_FLAGS "-Wno-nontrivial-memcall")
 endif ()
 
+if (ENABLE_LOG)
+    message(STATUS "Adding extra logs.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_LOG")
+endif ()
+
+if (ENABLE_GL_DEBUG)
+    message(STATUS "Adding GL Debug.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_GL_DEBUG")
+endif ()
+
 if (NOT UNIX)
     message(STATUS "Compiling Windows version")
     add_compile_definitions(-DWIN32)
@@ -38,6 +48,7 @@ else ()
     # If Assimp from your package manager is bugged and u dont want to compile it and install system-wide.
     # Also useful if your debugger is not loading the debug symbols.
     if (FETCH_EXTERNAL_ASSIMP)
+        message(STATUS "Using external Assimp.")
         FetchContent_Declare(assimp
                 GIT_REPOSITORY https://github.com/assimp/assimp.git
                 GIT_TAG v5.4.3)
@@ -46,8 +57,9 @@ else ()
         set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
         set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
         FetchContent_MakeAvailable(assimp)
+    else ()
+        find_package(assimp REQUIRED)
     endif ()
-    find_package(assimp REQUIRED)
 
     # imgui
     FetchContent_Declare(imgui_external
@@ -133,6 +145,13 @@ add_library(AzxEngineGL STATIC
         src/Bone.h
         src/Assimp2Glm.cpp
         src/Assimp2Glm.h
+        src/ECS/Components/SkinnedMeshRenderer.h
+        src/ECS/Components/Skeleton.h
+        src/SkinnedAnimation.cpp
+        src/SkinnedAnimation.h
+        src/SkinnedAnimator.cpp
+        src/SkinnedAnimator.h
+        src/BoneInfo.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

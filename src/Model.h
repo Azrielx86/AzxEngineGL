@@ -5,19 +5,13 @@
 #ifndef SHADERPLAYGROUND_MODEL_H
 #define SHADERPLAYGROUND_MODEL_H
 
+#include "BoneInfo.h"
 #include "Mesh.h"
 #include "Resources/Material.h"
+#include "SkinnedAnimation.h"
 #include "Utils.h"
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <vector>
-
-struct BoneInfo
-{
-    int id;
-    glm::mat4 offset;
-};
 
 class Model
 {
@@ -25,13 +19,24 @@ class Model
     explicit Model(const char *path);
     void Render(Shader &shader);
 
+    [[nodiscard]] std::unordered_map<std::string, BoneInfo, string_hash> &GetBoneInfoMap() { return boneInfoMap; }
+
+    [[nodiscard]] int GetBoneCount() const { return boneCounter; }
+
+    void IncrementBoneCount() { boneCounter++; }
+
+    void AddBoneInfo(const std::string &name, int id, const glm::mat4 &offset);
+
+    [[nodiscard]] SkinnedAnimation *GetAnimation(int index);
+
   private:
     std::vector<Mesh> meshes;
     std::unordered_map<std::string, BoneInfo, string_hash> boneInfoMap;
-    int m_BoneCounter{};
+    int boneCounter{};
     glm::mat4 globalInverseTransform{};
     std::string modelPath{};
-    // const aiScene* scene;
+    // const aiScene *scene{};
+    std::vector<SkinnedAnimation> animations;
     int animationIndex{};
 
     void LoadModel(const char *path);
@@ -40,7 +45,7 @@ class Model
     static std::vector<std::shared_ptr<Resources::Texture>> LoadMaterialTextures(const aiMaterial *material, aiTextureType type);
     static Resources::Material LoadMaterial(const aiMaterial *assimpMaterial);
     void ExtractBoneWeightVertices(std::vector<Vertex> &vertices, const aiMesh *mesh, const aiScene *scene);
-    static void SetVertexBoneData(Vertex& vertex, int boneId, float weight);
+    static void SetVertexBoneData(Vertex &vertex, int boneId, float weight);
 };
 
 #endif // SHADERPLAYGROUND_MODEL_H

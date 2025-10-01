@@ -4,6 +4,8 @@
 
 #include "Model.h"
 #include "Assimp2Glm.h"
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 #include <iostream>
 #include <regex>
 
@@ -18,18 +20,21 @@ void Model::LoadModel(const char *path)
 {
     modelPath = path;
     auto importer = Assimp::Importer();
-    const auto aiScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace);
+    const auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace);
 
-    if (!aiScene || aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !aiScene->mRootNode)
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         std::cerr << "No se pudo cargar el modelo: " << importer.GetErrorString() << "\n";
         return;
     }
 
-    globalInverseTransform = Assimp2Glm::ConvertMatrix4x4(aiScene->mRootNode->mTransformation);
+    globalInverseTransform = Assimp2Glm::ConvertMatrix4x4(scene->mRootNode->mTransformation);
     globalInverseTransform = glm::inverse(globalInverseTransform);
 
-    LoadNode(aiScene->mRootNode, aiScene);
+    LoadNode(scene->mRootNode, scene);
+
+    for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
+        animations.emplace_back(scene->mAnimations[i], scene, *this);
 }
 
 void Model::LoadNode(const aiNode *pNode, const aiScene *pScene) // NOLINT(*-no-recursion)
@@ -76,7 +81,6 @@ void Model::LoadMesh(const aiMesh *mesh, [[maybe_unused]] const aiScene *aiScene
 
     Resources::Material material{};
 
-    // if (mesh->mMaterialIndex >= 0)
     if (aiScene->mNumMaterials > 0)
     {
         const auto mat = aiScene->mMaterials[mesh->mMaterialIndex];
@@ -92,14 +96,12 @@ void Model::LoadMesh(const aiMesh *mesh, [[maybe_unused]] const aiScene *aiScene
         material.textured = !textures.empty();
     }
 
-    // auto nMesh = Mesh(vertices, faces, textures, material);
-    // nMesh.Load();
-    // meshes.push_back(nMesh);
     meshes.emplace_back(vertices, faces, textures, material);
 }
 
 void Model::Render(Shader &shader)
 {
+    shader.Set("numBones", boneCounter);
     for (Mesh &mesh : meshes)
     {
         const auto material = mesh.GetMaterial();
@@ -111,6 +113,16 @@ void Model::Render(Shader &shader)
         shader.Set("material.textured", material->textured);
         mesh.Render(shader);
     }
+}
+
+void Model::AddBoneInfo(const std::string &name, const int id, const glm::mat4 &offset)
+{
+    boneInfoMap[name] = {id, offset};
+}
+
+SkinnedAnimation *Model::GetAnimation(const int index)
+{
+    return animations.empty() ? nullptr : &animations[index];
 }
 
 std::vector<std::shared_ptr<Resources::Texture>> Model::LoadMaterialTextures(const aiMaterial *material, const aiTextureType type)
@@ -170,18 +182,18 @@ void Model::ExtractBoneWeightVertices(std::vector<Vertex> &vertices, const aiMes
 {
     for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
     {
-        int boneId;
+        int boneId = -1;
 
         if (std::string boneName = mesh->mBones[boneIndex]->mName.C_Str(); !boneInfoMap.contains(boneName))
         {
             BoneInfo boneInfo{};
-            boneInfo.id = m_BoneCounter;
+            boneInfo.id = boneCounter;
             boneInfo.offset = Assimp2Glm::ConvertMatrix4x4(mesh->mBones[boneIndex]->mOffsetMatrix);
             boneInfoMap[boneName] = boneInfo;
-            boneId = m_BoneCounter;
-            m_BoneCounter++;
+            boneId = boneCounter;
+            boneCounter++;
 #if defined(DEBUG) || defined(ENABLE_LOG)
-            std::cout << std::format("[Model: {}] Found bone: {} ({})\n", modelPath, boneName, m_BoneCounter);
+            std::cout << std::format("[Model: {}] Found bone: {} ({})\n", modelPath, boneName, boneCounter);
 #endif
         }
         else
