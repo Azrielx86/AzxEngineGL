@@ -64,8 +64,8 @@ unsigned int Bone::GetRotationIndex(const float time) const
 
 unsigned int Bone::GetScaleIndex(const float time) const
 {
-    for (unsigned int i = 0; i < numRotations - 1; i++)
-        if (time < rotations[i + 1].timeStamp) return i;
+    for (unsigned int i = 0; i < numScalings - 1; i++)
+        if (time < scales[i + 1].timeStamp) return i;
     return 0;
 }
 
