@@ -5,7 +5,9 @@ include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_FLAGS "-Wno-nontrivial-memcall")
+if (FIX_ASSIMP_MEMCALL)
+    set(CMAKE_CXX_FLAGS "-Wno-nontrivial-memcall")
+endif ()
 
 if (NOT UNIX)
     message(STATUS "Compiling Windows version")
@@ -33,8 +35,9 @@ else ()
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
 
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # assimp
+    # If Assimp from your package manager is bugged and u dont want to compile it and install system-wide.
+    # Also useful if your debugger is not loading the debug symbols.
+    if (FETCH_EXTERNAL_ASSIMP)
         FetchContent_Declare(assimp
                 GIT_REPOSITORY https://github.com/assimp/assimp.git
                 GIT_TAG v5.4.3)
@@ -43,9 +46,8 @@ else ()
         set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
         set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
         FetchContent_MakeAvailable(assimp)
-    else ()
-        find_package(assimp REQUIRED)
     endif ()
+    find_package(assimp REQUIRED)
 
     # imgui
     FetchContent_Declare(imgui_external
