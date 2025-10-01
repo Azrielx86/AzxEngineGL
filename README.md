@@ -34,3 +34,9 @@ target_link_libraries(Example PRIVATE AzxEngineGL)
 - [ ] SSAO
 - [x] Grid floor
 - [ ] Particle system
+
+## vcpkg required packages
+
+```
+vcpkg install assimp freealut freeimage freetype glew glfw3 glm 'imgui[glfw-binding,opengl3-binding]' openal-soft opengl stb
+```
