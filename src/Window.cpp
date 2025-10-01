@@ -37,7 +37,7 @@ bool Window::Init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-#if DEBUG
+#if defined(DEBUG) || defined(ENABLE_GL_DEBUG)
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
@@ -73,7 +73,7 @@ bool Window::Init()
 	glfwSetCursorPosCallback(window.get(), CbkMouseCallback);
 	glfwSetKeyCallback(window.get(), CbkKeyboardInputCallback);
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(ENABLE_GL_DEBUG)
 	int flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
@@ -83,11 +83,11 @@ bool Window::Init()
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(GlDebugOutput, nullptr);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	    std::cout << "\033[33m[!] Enabled OpenGL Debug.\033[0m\n";
 	}
 #endif
 
 	glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GLFW_FALSE);
-	//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// imgui setting
 
@@ -172,7 +172,7 @@ void Window::CbkKeyboardInputCallback([[maybe_unused]] GLFWwindow *window, int k
 	Input::Keyboard::GetInstance()->HandleKeys(key, code, action, mode);
 }
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(ENABLE_GL_DEBUG)
 void Window::GlDebugOutput(const GLenum source, const GLenum type, const unsigned int id, const GLenum severity, [[maybe_unused]] GLsizei length, const char *message, [[maybe_unused]] const void *userParam)
 {
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;

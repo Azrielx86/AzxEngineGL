@@ -12,6 +12,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#define MAX_BONE_INFLUENCE 4
+
 typedef struct vertex
 {
 	glm::vec3 position;
@@ -19,6 +21,8 @@ typedef struct vertex
 	glm::vec2 texCoords;
 	glm::vec3 tangent;
 	glm::vec3 bitangent;
+    int boneIds[MAX_BONE_INFLUENCE];
+    float weights[MAX_BONE_INFLUENCE];
 } Vertex;
 
 class Mesh

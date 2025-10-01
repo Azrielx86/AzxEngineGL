@@ -9,7 +9,7 @@
 
 namespace ECS::Systems
 {
-glm::mat4 RenderSystem::GetWorldTransform(Registry &registry, const Entity entity)
+glm::mat4 RenderSystem::GetWorldTransform(Registry &registry, const Entity entity) // NOLINT(*-no-recursion)
 {
     auto &[translation, rotation, scale, parent] = registry.GetComponent<Components::Transform>(entity);
 
@@ -18,7 +18,7 @@ glm::mat4 RenderSystem::GetWorldTransform(Registry &registry, const Entity entit
                                 glm::scale(glm::mat4(1.0f), scale);
 
     if (parent != NullEntity)
-        return GetWorldTransform(registry, entity) * localTransform;
+        return GetWorldTransform(registry, parent) * localTransform;
 
     return localTransform;
 }
@@ -33,5 +33,4 @@ void RenderSystem::Update(Registry &registry, [[maybe_unused]] float deltaTime)
         model->Render(*shader);
     }
 }
-
 } // namespace ECS::Systems

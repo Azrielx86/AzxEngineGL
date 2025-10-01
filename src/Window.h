@@ -50,7 +50,7 @@ class Window
 	static void CbkFrameBufferSize([[maybe_unused]] GLFWwindow *window, int width, int height);
 	static void CbkMouseCallback([[maybe_unused]] [[maybe_unused]] GLFWwindow *window, double xpos, double ypos);
 	static void CbkKeyboardInputCallback([[maybe_unused]] GLFWwindow *window, int key, [[maybe_unused]] int code, int action, [[maybe_unused]] int mode);
-#ifdef DEBUG
+#if defined(DEBUG) || defined(ENABLE_GL_DEBUG)
 	static void GLAPIENTRY GlDebugOutput(GLenum source,
 	                                     GLenum type,
 	                                     unsigned int id,

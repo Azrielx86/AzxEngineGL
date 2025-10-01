@@ -128,19 +128,24 @@ add_library(AzxEngineGL STATIC
         src/ECS/Systems/PlayerControlSystem.cpp
         src/ECS/Systems/PlayerControlSystem.h
         src/ECS/Components/PlayerController.h
+        src/Utils.h
+        src/Bone.cpp
+        src/Bone.h
+        src/Assimp2Glm.cpp
+        src/Assimp2Glm.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if (VCPKG_TOOLCHAIN)
-    target_link_libraries(AzxEngineGL PRIVATE OpenGL::GL)
-    target_include_directories(AzxEngineGL PRIVATE ${Stb_INCLUDE_DIR})
-    target_link_libraries(AzxEngineGL PRIVATE imgui::imgui)
+    target_link_libraries(AzxEngineGL PUBLIC OpenGL::GL)
+    target_include_directories(AzxEngineGL PUBLIC ${Stb_INCLUDE_DIR})
+    target_link_libraries(AzxEngineGL PUBLIC imgui::imgui)
 else ()
-    target_link_libraries(AzxEngineGL PRIVATE OpenGL)
-    target_link_libraries(AzxEngineGL PRIVATE imgui)
+    target_link_libraries(AzxEngineGL PUBLIC OpenGL)
+    target_link_libraries(AzxEngineGL PUBLIC imgui)
 endif ()
-target_link_libraries(AzxEngineGL PRIVATE glfw)
-target_link_libraries(AzxEngineGL PRIVATE GLEW::GLEW)
-target_link_libraries(AzxEngineGL PRIVATE glm::glm)
-target_link_libraries(AzxEngineGL PRIVATE assimp::assimp)
+target_link_libraries(AzxEngineGL PUBLIC glfw)
+target_link_libraries(AzxEngineGL PUBLIC GLEW::GLEW)
+target_link_libraries(AzxEngineGL PUBLIC glm::glm)
+target_link_libraries(AzxEngineGL PUBLIC assimp::assimp)
