@@ -5,6 +5,8 @@
 #ifndef POINTLIGHT_H
 #define POINTLIGHT_H
 
+#include <glm/glm.hpp>
+
 namespace Lights
 {
 

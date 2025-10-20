@@ -12,15 +12,16 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#define MAX_BONES 200
 #define MAX_BONE_INFLUENCE 4
 
 typedef struct vertex
 {
-	glm::vec3 position;
-	glm::vec3 normal;
-	glm::vec2 texCoords;
-	glm::vec3 tangent;
-	glm::vec3 bitangent;
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texCoords;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
     int boneIds[MAX_BONE_INFLUENCE];
     float weights[MAX_BONE_INFLUENCE];
 } Vertex;
@@ -28,30 +29,35 @@ typedef struct vertex
 class Mesh
 {
   public:
-	enum HAS_TEXTURE
-	{
-		DIFFUSE = 0b0001,
-		NORMAL = 0b0010,
-		SPECULAR = 0b0100,
-		EMISSION = 0b1000
-	};
+    enum HAS_TEXTURE
+    {
+        DIFFUSE = 0b0001,
+        NORMAL = 0b0010,
+        SPECULAR = 0b0100,
+        EMISSION = 0b1000
+    };
 
   private:
-	unsigned int VAO{};
-	unsigned int VBO{};
-	unsigned int IBO{};
+    unsigned int VAO{};
+    unsigned int VBO{};
+    unsigned int IBO{};
 
-	std::vector<Vertex> vertex;
-	std::vector<unsigned int> index;
-	std::vector<std::shared_ptr<Resources::Texture>> textures;
-	Resources::Material material{};
+    std::vector<Vertex> vertex;
+    std::vector<unsigned int> index;
+    std::vector<std::shared_ptr<Resources::Texture>> textures;
+    Resources::Material material{};
+    bool alphaProperties = false;
 
   public:
-	Mesh(std::vector<Vertex> vertex, std::vector<unsigned int> index, std::vector<std::shared_ptr<Resources::Texture>> textures, const Resources::Material &material);
-	~Mesh();
-	void Load();
-	void Render([[maybe_unused]] [[maybe_unused]] const Shader &shader) const;
-	[[nodiscard]] Resources::Material *GetMaterial();
+    Mesh(std::vector<Vertex> vertex, std::vector<unsigned int> index, std::vector<std::shared_ptr<Resources::Texture>> textures, const Resources::Material &material);
+    ~Mesh();
+    void Load();
+    void Render([[maybe_unused]] [[maybe_unused]] const Shader &shader) const;
+    [[nodiscard]] Resources::Material *GetMaterial();
+
+    [[nodiscard]] bool HasAlphaProperties() const { return alphaProperties; }
+
+    void SetAlphaProperties(const bool value) { alphaProperties = value; }
 };
 
 #endif // SHADERPLAYGROUND_MESH_H

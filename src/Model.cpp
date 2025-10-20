@@ -88,30 +88,60 @@ void Model::LoadMesh(const aiMesh *mesh, [[maybe_unused]] const aiScene *aiScene
         auto specularMaps = LoadMaterialTextures(mat, aiTextureType_SPECULAR);
         auto emissiveMaps = LoadMaterialTextures(mat, aiTextureType_EMISSIVE);
         auto normalMaps = LoadMaterialTextures(mat, aiTextureType_NORMALS);
+        auto alphaMaps = LoadMaterialTextures(mat, aiTextureType_OPACITY);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
         material = LoadMaterial(mat);
         material.textured = !textures.empty();
+        if (material.alpha < 1.0f || !alphaMaps.empty())
+        {
+            hasTransparency = true;
+        }
     }
 
-    meshes.emplace_back(vertices, faces, textures, material);
+    Mesh& insertedMesh = meshes.emplace_back(vertices, faces, textures, material);
+    insertedMesh.SetAlphaProperties(hasTransparency);
 }
 
 void Model::Render(Shader &shader)
 {
     shader.Set("numBones", boneCounter);
+
+    std::vector<Mesh*> transparentMeshes;
+
     for (Mesh &mesh : meshes)
     {
+        if (mesh.HasAlphaProperties())
+        {
+            transparentMeshes.push_back(&mesh);
+            continue;
+        }
+
         const auto material = mesh.GetMaterial();
         shader.Set<3>("material.ambient", material->ambient);
         shader.Set<3>("material.diffuse", material->diffuse);
         shader.Set<3>("material.emissive", material->emissive);
         shader.Set<3>("material.specular", material->specular);
+        shader.Set("material.alpha", material->alpha);
         shader.Set("material.shininess", material->shininess);
         shader.Set("material.textured", material->textured);
         mesh.Render(shader);
+    }
+
+    // TODO : Order respect camera position
+    for (Mesh *mesh : transparentMeshes)
+    {
+        const auto material = mesh->GetMaterial();
+        shader.Set<3>("material.ambient", material->ambient);
+        shader.Set<3>("material.diffuse", material->diffuse);
+        shader.Set<3>("material.emissive", material->emissive);
+        shader.Set<3>("material.specular", material->specular);
+        shader.Set("material.alpha", material->alpha);
+        shader.Set("material.shininess", material->shininess);
+        shader.Set("material.textured", material->textured);
+        mesh->Render(shader);
     }
 }
 
@@ -143,7 +173,8 @@ std::vector<std::shared_ptr<Resources::Texture>> Model::LoadMaterialTextures(con
         }
         auto texName = results[0].str();
         auto texture = Resources::ResourceManager::GetInstance()->GetTexture(texName);
-        texture->type = type;
+        if (texture->type == aiTextureType_NONE) // TODO : Handle multiple texture types.
+            texture->type = type;
         textures.push_back(texture);
     }
     return textures;
@@ -174,6 +205,7 @@ Resources::Material Model::LoadMaterial(const aiMaterial *assimpMaterial)
     mat.emissive = glm::vec3(emissive.r, emissive.g, emissive.b);
 
     assimpMaterial->Get(AI_MATKEY_SHININESS, mat.shininess);
+    assimpMaterial->Get(AI_MATKEY_OPACITY, mat.alpha);
 
     return mat;
 }
@@ -182,6 +214,7 @@ void Model::ExtractBoneWeightVertices(std::vector<Vertex> &vertices, const aiMes
 {
     for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
     {
+        // ReSharper disable once CppDFAUnusedValue
         int boneId = -1;
 
         if (std::string boneName = mesh->mBones[boneIndex]->mName.C_Str(); !boneInfoMap.contains(boneName))

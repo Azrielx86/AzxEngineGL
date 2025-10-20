@@ -6,15 +6,15 @@
 
 SkinnedAnimator::SkinnedAnimator() : currentAnim(nullptr), currentTime(0), deltaTime(0)
 {
-    finalBoneMatrices.reserve(100);
-    for (int i = 0; i < 100; i++)
+    finalBoneMatrices.reserve(200);
+    for (int i = 0; i < 200; i++)
         finalBoneMatrices.emplace_back(1.0f);
 }
 
 SkinnedAnimator::SkinnedAnimator(SkinnedAnimation *animation) : currentAnim(animation), currentTime(0), deltaTime(0)
 {
-    finalBoneMatrices.reserve(100);
-    for (int i = 0; i < 100; i++)
+    finalBoneMatrices.reserve(200);
+    for (int i = 0; i < 200; i++)
         finalBoneMatrices.emplace_back(1.0f);
 }
 

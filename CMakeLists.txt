@@ -5,13 +5,16 @@ include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 20)
 
-if (FIX_ASSIMP_MEMCALL)
-    set(CMAKE_CXX_FLAGS "-Wno-nontrivial-memcall")
-endif ()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGLM_ENABLE_EXPERIMENTAL")
 
 if (ENABLE_LOG)
     message(STATUS "Adding extra logs.")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_LOG")
+endif ()
+
+if (USE_DEBUG_ASSETS)
+    message(STATUS "Using debug assets (not copying to binary dir).")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_DEBUG_ASSETS")
 endif ()
 
 if (ENABLE_GL_DEBUG)
@@ -49,6 +52,7 @@ else ()
     # Also useful if your debugger is not loading the debug symbols.
     if (FETCH_EXTERNAL_ASSIMP)
         message(STATUS "Using external Assimp.")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nontrivial-memcall")
         FetchContent_Declare(assimp
                 GIT_REPOSITORY https://github.com/assimp/assimp.git
                 GIT_TAG v5.4.3)
@@ -63,7 +67,7 @@ else ()
 
     # imgui
     FetchContent_Declare(imgui_external
-            URL https://github.com/ocornut/imgui/archive/refs/tags/v1.90.9.tar.gz
+            URL https://github.com/ocornut/imgui/archive/refs/tags/v1.92.3.tar.gz
             EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(imgui_external)

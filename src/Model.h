@@ -29,6 +29,8 @@ class Model
 
     [[nodiscard]] SkinnedAnimation *GetAnimation(int index);
 
+    [[nodiscard]] bool HasTransparency() const { return hasTransparency; }
+
   private:
     std::vector<Mesh> meshes;
     std::unordered_map<std::string, BoneInfo, string_hash> boneInfoMap;
@@ -37,7 +39,7 @@ class Model
     std::string modelPath{};
     // const aiScene *scene{};
     std::vector<SkinnedAnimation> animations;
-    int animationIndex{};
+    bool hasTransparency = false;
 
     void LoadModel(const char *path);
     void LoadNode(const aiNode *pNode, const aiScene *pScene);

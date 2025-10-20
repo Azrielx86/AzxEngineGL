@@ -12,9 +12,11 @@ namespace ECS::Systems
 {
 class RenderSystem final : public ISystem
 {
-    static glm::mat4 GetWorldTransform(Registry& registry, const Entity entity);
+    static glm::mat4 GetWorldTransform(Registry &registry, Entity entity);
+
   public:
     void Update(Registry &registry, float deltaTime) override;
+    static void RenderEntity(Registry &registry, Entity entity);
 };
 } // namespace ECS::Systems
 
