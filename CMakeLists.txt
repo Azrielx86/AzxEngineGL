@@ -156,6 +156,10 @@ add_library(AzxEngineGL STATIC
         src/SkinnedAnimator.cpp
         src/SkinnedAnimator.h
         src/BoneInfo.h
+        src/ECS/Components/Collider.h
+        src/ECS/Components/Collider.cpp
+        src/ECS/Systems/CollisionSystem.cpp
+        src/ECS/Systems/CollisionSystem.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
