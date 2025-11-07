@@ -40,6 +40,9 @@ class Registry
 
     template <typename... Components>
     [[nodiscard]] std::vector<Entity> View();
+
+    template <typename T>
+    [[nodiscard]] bool HasComponent(Entity entity);
 };
 
 template <typename T>
@@ -91,6 +94,12 @@ std::vector<Entity> Registry::View()
     }
 
     return entities;
+}
+
+template <typename T>
+bool Registry::HasComponent(const Entity entity)
+{
+    return GetComponentArray<T>()->HasComponent(entity);
 }
 
 } // namespace ECS

@@ -13,6 +13,27 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
     const auto sbbEntities = registry.View<Components::Transform, Components::SBBCollider>();
     const auto obbEntities = registry.View<Components::Transform, Components::OBBCollider>();
 
+    for (const Entity& entity : aabbEntities)
+    {
+        auto &collider = registry.GetComponent<Components::OBBCollider>(entity);
+        collider.isColliding = false;
+        collider.collidingEntities.clear();
+    }
+
+    for (const Entity& entity : sbbEntities)
+    {
+        auto &collider = registry.GetComponent<Components::OBBCollider>(entity);
+        collider.isColliding = false;
+        collider.collidingEntities.clear();
+    }
+
+    for (const Entity& entity : obbEntities)
+    {
+        auto &collider = registry.GetComponent<Components::OBBCollider>(entity);
+        collider.isColliding = false;
+        collider.collidingEntities.clear();
+    }
+
     /*
      * AABB vs AABB
      */
@@ -81,12 +102,14 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
             auto &transformB = registry.GetComponent<Components::Transform>(obbEntityB);
             auto worldOBBB = colliderB.GetWorldOBB(transformB);
 
-            const bool collision = CheckCollision(worldOBBA, worldOBBB);
-
+            if (CheckCollision(worldOBBA, worldOBBB))
+            {
+                colliderA.isColliding = true;
+                colliderA.collidingEntities.push_back(obbEntityB);
 #if ENABLE_LOG
-            if (collision)
                 std::cout << std::format("OBB vs OBB Collision by entities {} and {}\n", obbEntityA, obbEntityB);
 #endif
+            }
         }
     }
 }

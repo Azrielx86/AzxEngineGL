@@ -4,7 +4,7 @@ ECS::Components::AABBCollider ECS::Components::AABBCollider::GetWorldAABB(const 
 {
     const glm::vec3 worldMin = transform.translation + min * transform.scale;
     const glm::vec3 worldMax = transform.translation + max * transform.scale;
-    return {worldMin, worldMax};
+    return {.min = worldMin, .max = worldMax};
 }
 
 ECS::Components::OBBCollider ECS::Components::OBBCollider::GetWorldOBB(const Transform &transform) const
@@ -13,4 +13,9 @@ ECS::Components::OBBCollider ECS::Components::OBBCollider::GetWorldOBB(const Tra
     const glm::quat r = transform.rotation * rotation;
     const glm::vec3 h = halfExtents * transform.scale;
     return {.center = c, .rotation = r, .halfExtents = h};
+}
+
+const ECS::Components::Collider *ECS::Components::GetCollider(Registry &registry, const Entity entity)
+{
+    return GetColliderImpl<ColliderComponents>(registry, entity, std::make_index_sequence<std::tuple_size_v<ColliderComponents>>{});
 }

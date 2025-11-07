@@ -26,6 +26,8 @@ class ComponentArray final : public IComponentArray
 
 	T &GetData(Entity entity);
 
+    bool HasComponent(Entity entity) const;
+
 	~ComponentArray() override;
 };
 
@@ -49,6 +51,12 @@ template <typename T>
 T &ComponentArray<T>::GetData(const Entity entity)
 {
 	return componentArray[entityToIndex[entity]];
+}
+
+template <typename T>
+bool ComponentArray<T>::HasComponent(const Entity entity) const
+{
+    return entityToIndex.contains(entity);
 }
 
 template <typename T>
