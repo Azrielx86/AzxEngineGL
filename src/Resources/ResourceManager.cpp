@@ -136,6 +136,9 @@ void ResourceManager::ScanShaders()
 				shader = std::make_shared<Shader>();
 				shader->CreateProgram();
 				shaders[shaderName] = shader;
+#if defined(ENABLE_LOG)
+                std::cout << std::format("\033[35m[Resource Manager] Found new shader: {}\033[0m\n", shaderName);
+#endif
 			}
 			else
 				shader = shaders[shaderName];

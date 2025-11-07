@@ -28,7 +28,9 @@ struct SBBCollider
 struct OBBCollider
 {
     glm::vec3 center;
+    glm::quat rotation;
     glm::vec3 halfExtents;
+    [[nodiscard]] OBBCollider GetWorldOBB(const Transform& transform) const;
 };
 } // namespace ECS::Components
 

@@ -11,6 +11,7 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
 {
     const auto aabbEntities = registry.View<Components::Transform, Components::AABBCollider>();
     const auto sbbEntities = registry.View<Components::Transform, Components::SBBCollider>();
+    const auto obbEntities = registry.View<Components::Transform, Components::OBBCollider>();
 
     /*
      * AABB vs AABB
@@ -63,6 +64,31 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
 #endif
         }
     }
+
+    /*
+     * OBB vs OBB
+     */
+    for (Entity obbEntityA : obbEntities)
+    {
+        auto &colliderA = registry.GetComponent<Components::OBBCollider>(obbEntityA);
+        auto &transformA = registry.GetComponent<Components::Transform>(obbEntityA);
+        auto worldOBBA = colliderA.GetWorldOBB(transformA);
+
+        for (Entity obbEntityB : obbEntities)
+        {
+            if (obbEntityA == obbEntityB) continue;
+            auto &colliderB = registry.GetComponent<Components::OBBCollider>(obbEntityB);
+            auto &transformB = registry.GetComponent<Components::Transform>(obbEntityB);
+            auto worldOBBB = colliderB.GetWorldOBB(transformB);
+
+            const bool collision = CheckCollision(worldOBBA, worldOBBB);
+
+#if ENABLE_LOG
+            if (collision)
+                std::cout << std::format("OBB vs OBB Collision by entities {} and {}\n", obbEntityA, obbEntityB);
+#endif
+        }
+    }
 }
 
 bool ECS::Systems::CollisionSystem::CheckCollision(const Components::AABBCollider &a, const Components::Transform &aTransform, const Components::AABBCollider &b, const Components::Transform &bTransform)
@@ -86,4 +112,54 @@ bool ECS::Systems::CollisionSystem::CheckCollision(const Components::SBBCollider
     const float radSum = radiusA + radiusB;
 
     return distanceSq <= radSum * radSum;
+}
+
+bool ECS::Systems::CollisionSystem::CheckCollision(const Components::OBBCollider &a, const Components::OBBCollider &b)
+{
+    glm::vec3 aAxes[3];
+    glm::mat3 aRotMat = glm::mat3_cast(a.rotation);
+    aAxes[0] = aRotMat[0];
+    aAxes[1] = aRotMat[1];
+    aAxes[2] = aRotMat[2];
+
+    glm::vec3 bAxes[3];
+    glm::mat3 bRotMat = glm::mat3_cast(b.rotation);
+    bAxes[0] = bRotMat[0];
+    bAxes[1] = bRotMat[1];
+    bAxes[2] = bRotMat[2];
+
+    const glm::vec3 T = b.center - a.center;
+
+    auto checkSeparatingAxis = [&](const glm::vec3 &axis) -> bool
+    {
+        if (glm::dot(axis, axis) < 0.0001f) return false;
+
+        const float aProjectedRadious =
+            a.halfExtents.x * std::abs(glm::dot(axis, aAxes[0])) +
+            a.halfExtents.y * std::abs(glm::dot(axis, aAxes[1])) +
+            a.halfExtents.z * std::abs(glm::dot(axis, aAxes[2]));
+
+        const float bProjectedRadious =
+            b.halfExtents.x * std::abs(glm::dot(axis, bAxes[0])) +
+            b.halfExtents.y * std::abs(glm::dot(axis, bAxes[1])) +
+            b.halfExtents.z * std::abs(glm::dot(axis, bAxes[2]));
+
+        const float distance = std::abs(glm::dot(T, axis));
+
+        return distance > aProjectedRadious + bProjectedRadious;
+    };
+
+    if (checkSeparatingAxis(aAxes[0])) return false;
+    if (checkSeparatingAxis(aAxes[1])) return false;
+    if (checkSeparatingAxis(aAxes[2])) return false;
+
+    if (checkSeparatingAxis(bAxes[0])) return false;
+    if (checkSeparatingAxis(bAxes[1])) return false;
+    if (checkSeparatingAxis(bAxes[2])) return false;
+
+    for (const glm::vec3 &aAxe : aAxes)
+        for (const glm::vec3 &bAxe : bAxes)
+            if (checkSeparatingAxis(glm::cross(aAxe, bAxe))) return false;
+
+    return true;
 }

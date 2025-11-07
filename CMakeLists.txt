@@ -160,6 +160,12 @@ add_library(AzxEngineGL STATIC
         src/ECS/Components/Collider.cpp
         src/ECS/Systems/CollisionSystem.cpp
         src/ECS/Systems/CollisionSystem.h
+        src/Primitives/AbstractPrimitive.cpp
+        src/Primitives/AbstractPrimitive.h
+        src/Primitives/Plane.cpp
+        src/Primitives/Plane.h
+        src/Primitives/Cube.cpp
+        src/Primitives/Cube.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

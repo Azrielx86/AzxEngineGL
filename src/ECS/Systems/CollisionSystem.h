@@ -16,6 +16,7 @@ class CollisionSystem final : public ISystem
     void Update(Registry &registry, float deltaTime) override;
     static bool CheckCollision(const Components::AABBCollider &a, const Components::Transform &aTransform, const Components::AABBCollider &b, const Components::Transform &bTransform);
     static bool CheckCollision(const Components::SBBCollider &a, const Components::Transform &aTransform, const Components::SBBCollider &b, const Components::Transform &bTransform);
+    static bool CheckCollision(const Components::OBBCollider &a, const Components::OBBCollider &b);
 };
 } // namespace ECS::Systems
 
