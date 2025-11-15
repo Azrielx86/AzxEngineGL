@@ -113,6 +113,7 @@ void Window::CbkFrameBufferSize([[maybe_unused]] GLFWwindow *window, int width, 
 
 	for (Framebuffer *buffer : pWindow->buffers)
 	{
+	    buffer->DestroyFramebuffer();
 		buffer->CreateFramebuffer(width, height);
 	}
 }
@@ -160,6 +161,11 @@ void Window::ToggleFullscreen()
 	{
 		glfwSetWindowMonitor(window.get(), nullptr, windowPos[0], windowPos[1], windowSize[0], windowSize[1], 0);
 	}
+}
+
+void Window::EnableWindowViewport()
+{
+    glViewport(0, 0, width, height);
 }
 
 void Window::CbkMouseCallback([[maybe_unused]] GLFWwindow *window, double xpos, double ypos)

@@ -37,6 +37,7 @@ class Window
 	[[nodiscard]] int GetWidth() const;
 	void AddFramebuffer(Framebuffer *fb);
 	void ToggleFullscreen();
+    void EnableWindowViewport();
 
   private:
 	int height;
