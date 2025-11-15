@@ -37,9 +37,12 @@ if (VCPKG_TOOLCHAIN)
     find_package(GLEW REQUIRED)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
+    find_package(nlohmann_json CONFIG REQUIRED)
     find_package(assimp CONFIG REQUIRED)
     find_package(Stb REQUIRED)
     find_package(imgui CONFIG REQUIRED)
+    find_package(FreeALUT CONFIG REQUIRED)
+    find_package(OpenAL CONFIG REQUIRED)
 
     include_directories(${Stb_INCLUDE_DIR})
 else ()
@@ -47,6 +50,8 @@ else ()
     find_package(GLEW REQUIRED)
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
+    find_package(nlohmann_json REQUIRED)
+    find_package(OpenAL REQUIRED)
 
     # If Assimp from your package manager is bugged and u dont want to compile it and install system-wide.
     # Also useful if your debugger is not loading the debug symbols.
@@ -85,17 +90,22 @@ else ()
     include_directories(${imgui_external_SOURCE_DIR})
     include_directories(${imgui_external_SOURCE_DIR}/backends)
     include_directories("/usr/include/stb")
+    include_directories("/usr/include/AL")
 endif ()
 
-add_compile_options(-Wall -Wextra -Wconversion -Wdouble-promotion -Wno-sign-conversion -Wno-unknown-pragmas -Wuninitialized)
-add_link_options(-Wall -Wextra -Wconversion -Wdouble-promotion -Wno-sign-conversion -Wno-unknown-pragmas -Wuninitialized)
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "Compiling Debug version.")
-    add_compile_options(-O0 -gfull -DDEBUG -fno-inline -fstack-protector-all -fsanitize=address,undefined -fsanitize-trap)
-    add_link_options(-O0 -gfull -DDEBUG -fno-inline -fstack-protector-all -fsanitize=address,undefined -fsanitize-trap)
+if (MSVC)
+    message(STATUS "Compilig with MSVC in Visual Studio")
 else ()
-    add_compile_options(-O3)
+    add_compile_options(-Wall -Wextra -Wconversion -Wdouble-promotion -Wno-sign-conversion -Wno-unknown-pragmas -Wuninitialized)
+    add_link_options(-Wall -Wextra -Wconversion -Wdouble-promotion -Wno-sign-conversion -Wno-unknown-pragmas -Wuninitialized)
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(STATUS "Compiling Debug version.")
+        add_compile_options(-O0 -gfull -DDEBUG -fno-inline -fstack-protector-all -fsanitize=address,undefined -fsanitize-trap)
+        add_link_options(-O0 -gfull -DDEBUG -fno-inline -fstack-protector-all -fsanitize=address,undefined -fsanitize-trap)
+    else ()
+        add_compile_options(-O3)
+    endif ()
 endif ()
 
 add_library(AzxEngineGL STATIC
@@ -166,6 +176,7 @@ add_library(AzxEngineGL STATIC
         src/Primitives/Plane.h
         src/Primitives/Cube.cpp
         src/Primitives/Cube.h
+        src/ECS/Components/AudioSource.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -174,11 +185,16 @@ if (VCPKG_TOOLCHAIN)
     target_link_libraries(AzxEngineGL PUBLIC OpenGL::GL)
     target_include_directories(AzxEngineGL PUBLIC ${Stb_INCLUDE_DIR})
     target_link_libraries(AzxEngineGL PUBLIC imgui::imgui)
+    target_link_libraries(AzxEngineGL PUBLIC FreeALUT::alut)
 else ()
     target_link_libraries(AzxEngineGL PUBLIC OpenGL)
     target_link_libraries(AzxEngineGL PUBLIC imgui)
+    target_link_libraries(AzxEngineGL PUBLIC alut)
 endif ()
+
+target_link_libraries(AzxEngineGL PUBLIC OpenAL::OpenAL)
 target_link_libraries(AzxEngineGL PUBLIC glfw)
 target_link_libraries(AzxEngineGL PUBLIC GLEW::GLEW)
 target_link_libraries(AzxEngineGL PUBLIC glm::glm)
 target_link_libraries(AzxEngineGL PUBLIC assimp::assimp)
+target_link_libraries(AzxEngineGL PUBLIC nlohmann_json::nlohmann_json)
