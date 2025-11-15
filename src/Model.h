@@ -17,6 +17,7 @@ class Model
 {
   public:
     explicit Model(const char *path);
+    void Load();
     void Render(Shader &shader);
 
     [[nodiscard]] std::unordered_map<std::string, BoneInfo, string_hash> &GetBoneInfoMap() { return boneInfoMap; }

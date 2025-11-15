@@ -9,16 +9,19 @@
 #include <iostream>
 #include <regex>
 
-Model::Model(const char *path)
+Model::Model(const char *path) : modelPath(path)
 {
-    LoadModel(path);
+}
+
+void Model::Load()
+{
+    LoadModel(modelPath.c_str());
     for (Mesh &mesh : meshes)
         mesh.Load();
 }
 
 void Model::LoadModel(const char *path)
 {
-    modelPath = path;
     auto importer = Assimp::Importer();
     const auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace);
 
@@ -101,7 +104,7 @@ void Model::LoadMesh(const aiMesh *mesh, [[maybe_unused]] const aiScene *aiScene
         }
     }
 
-    Mesh& insertedMesh = meshes.emplace_back(vertices, faces, textures, material);
+    Mesh &insertedMesh = meshes.emplace_back(vertices, faces, textures, material);
     insertedMesh.SetAlphaProperties(hasTransparency);
 }
 
@@ -109,7 +112,7 @@ void Model::Render(Shader &shader)
 {
     shader.Set("numBones", boneCounter);
 
-    std::vector<Mesh*> transparentMeshes;
+    std::vector<Mesh *> transparentMeshes;
 
     for (Mesh &mesh : meshes)
     {
