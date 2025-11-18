@@ -51,7 +51,7 @@ const Collider *GetColliderImpl(Registry &registry, const Entity entity, std::in
     return result;
 }
 
-const Collider *GetCollider(Registry &registry, const Entity entity);
+const Collider *GetCollider(Registry &registry, Entity entity);
 } // namespace ECS::Components
 
 #endif // OPENGLPLAYGROUND_COLLIDER_H

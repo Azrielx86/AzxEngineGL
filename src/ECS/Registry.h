@@ -29,11 +29,28 @@ class Registry
   public:
     [[nodiscard]] Entity CreateEntity();
 
+    void DestroyEntity(Entity entity)
+    {
+        if (!entitySignature.contains(entity))
+        {
+            std::cout << std::format("Entity {} does not exists!\n", entity);
+            return;
+        }
+
+        for (auto componentIndex : entitySignature[entity])
+        {
+            const auto component = componentArrays[componentIndex];
+            component->RemoveEntity(entity);
+        }
+
+        entitySignature.erase(entity);
+    }
+
     template <typename T>
     void RegisterComponent();
 
     template <typename T>
-    void AddComponent(Entity entity, T component);
+    Registry &AddComponent(Entity entity, T component);
 
     template <typename T>
     [[nodiscard]] T &GetComponent(Entity entity);
@@ -58,11 +75,12 @@ void Registry::RegisterComponent()
 }
 
 template <typename T>
-void Registry::AddComponent(Entity entity, T component)
+Registry &Registry::AddComponent(Entity entity, T component)
 {
     std::shared_ptr<ComponentArray<T>> array = GetComponentArray<T>();
     array->Insert(entity, component);
     entitySignature[entity].insert(typeid(T));
+    return *this;
 }
 
 template <typename T>
