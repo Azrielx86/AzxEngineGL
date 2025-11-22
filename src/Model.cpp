@@ -176,6 +176,7 @@ std::vector<std::shared_ptr<Resources::Texture>> Model::LoadMaterialTextures(con
         }
         auto texName = results[0].str();
         auto texture = Resources::ResourceManager::GetInstance()->GetTexture(texName);
+        if (!texture) continue;
         if (texture->type == aiTextureType_NONE) // TODO : Handle multiple texture types.
             texture->type = type;
         textures.push_back(texture);

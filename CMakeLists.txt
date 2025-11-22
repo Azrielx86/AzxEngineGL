@@ -175,6 +175,7 @@ add_library(AzxEngineGL STATIC
         src/Primitives/Cube.cpp
         src/Primitives/Cube.h
         src/ECS/Components/AudioSource.h
+        src/Lights/DirectionalLight.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

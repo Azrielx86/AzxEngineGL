@@ -22,20 +22,20 @@ void Camera::Move(float deltaTime)
 {
 	const auto velocity = moveSpeed * deltaTime;
 	if (keyboard->GetKeyPress(GLFW_KEY_W))
-		position += front * velocity * deltaTime;
+		position += front * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_S))
-		position -= front * velocity * deltaTime;
+		position -= front * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_A))
-		position -= right * velocity * deltaTime;
+		position -= right * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_D))
-		position += right * velocity * deltaTime;
+		position += right * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_E))
-		position.y += 1.0f * velocity * deltaTime;
+		position.y += 1.0f * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_Q))
-		position.y -= 1.0f * velocity * deltaTime;
+		position.y -= 1.0f * velocity;
 
-	yaw += (float) mouse->GetChangex() * turnSpeed * deltaTime;
-	pitch += (float) mouse->GetChangey() * turnSpeed * deltaTime;
+	yaw += (float) mouse->GetChangex() * (turnSpeed * deltaTime);
+	pitch += (float) mouse->GetChangey() * (turnSpeed * deltaTime);
 
 	if (pitch > 89.0f)
 		pitch = 89.0f;

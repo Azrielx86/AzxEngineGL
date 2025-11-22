@@ -54,22 +54,40 @@ void ResourceManager::InitDefaultResources()
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
 
-	// Defatult spacular
+	// Defatult specular
 	data = {0, 0, 0, 0};
 	glGenTextures(1, &defaultResources.specular);
 	glBindTexture(GL_TEXTURE_2D, defaultResources.specular);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+
+    // Default missing texture
+    const std::array<uint8_t, 16> missingData = {
+        255, 0,   255, 255,
+        0,   0,   0,   255,
+        0,   0,   0,   255,
+        255, 0,   255, 255,
+    };
+    glGenTextures(1, &defaultResources.diffuse);
+    glBindTexture(GL_TEXTURE_2D, defaultResources.diffuse);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, missingData.data());
+
 	// TODO : Generate default textures
 }
 
@@ -165,10 +183,14 @@ DefaultResources ResourceManager::GetDefaultResources()
 
 std::shared_ptr<Texture> ResourceManager::GetTexture(const std::string &filename) const
 {
-	auto tex = textures.at(filename);
-	if (!tex->IsLoaded())
-		tex->LoadTexture();
-	return tex;
+    for (const auto &[tex_filename, tex] : textures)
+    {
+        if (tex_filename != filename) continue;
+        if (!tex->IsLoaded())
+            tex->LoadTexture();
+        return tex;
+    }
+    return nullptr;
 }
 
 std::shared_ptr<Shader> ResourceManager::GetShader(const std::string &shaderName) const
