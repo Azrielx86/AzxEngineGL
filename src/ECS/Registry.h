@@ -60,6 +60,8 @@ class Registry
 
     template <typename T>
     [[nodiscard]] bool HasComponent(Entity entity);
+
+    [[nodiscard]] size_t GetEntityCount() const;
 };
 
 template <typename T>

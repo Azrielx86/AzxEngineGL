@@ -8,6 +8,8 @@ namespace ECS
 {
 Entity Registry::CreateEntity()
 {
-	return nextEntity++;
+    return nextEntity++;
 }
+
+size_t Registry::GetEntityCount() const { return entitySignature.size(); }
 } // namespace ECS
