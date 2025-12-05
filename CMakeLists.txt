@@ -42,6 +42,7 @@ if (VCPKG_TOOLCHAIN)
     find_package(imgui CONFIG REQUIRED)
     find_package(FreeALUT CONFIG REQUIRED)
     find_package(OpenAL CONFIG REQUIRED)
+    find_package(Freetype CONFIG REQUIRED)
 
     include_directories(${Stb_INCLUDE_DIR})
 else ()
@@ -50,6 +51,7 @@ else ()
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
     find_package(OpenAL REQUIRED)
+    find_package(Freetype REQUIRED)
 
     # If Assimp from your package manager is bugged and u dont want to compile it and install system-wide.
     # Also useful if your debugger is not loading the debug symbols.
@@ -87,6 +89,7 @@ else ()
     target_include_directories(imgui PUBLIC ${imgui_external_SOURCE_DIR})
     include_directories(${imgui_external_SOURCE_DIR})
     include_directories(${imgui_external_SOURCE_DIR}/backends)
+    include_directories(${FREETYPE_INCLUDE_DIR_ft2build} ${FREETYPE_INCLUDE_DIR_freetype2})
     include_directories("/usr/include/stb")
     include_directories("/usr/include/AL")
 endif ()
@@ -176,6 +179,8 @@ add_library(AzxEngineGL STATIC
         src/Primitives/Cube.h
         src/ECS/Components/AudioSource.h
         src/Lights/DirectionalLight.h
+        src/FontType.cpp
+        src/FontType.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -196,3 +201,4 @@ target_link_libraries(AzxEngineGL PUBLIC glfw)
 target_link_libraries(AzxEngineGL PUBLIC GLEW::GLEW)
 target_link_libraries(AzxEngineGL PUBLIC glm::glm)
 target_link_libraries(AzxEngineGL PUBLIC assimp::assimp)
+target_link_libraries(AzxEngineGL PUBLIC Freetype::Freetype)
