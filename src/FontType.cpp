@@ -5,17 +5,9 @@
 #include "FontType.h"
 
 #include <format>
+#include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
 #include <utility>
-
-const char *FontType::vertexShader = ""
-                                     "#version 410 core\n"
-                                     "in vec4 in_Position;\n"
-                                     "out vec2 texCoords;\n"
-                                     "void main(void) {\n"
-                                     "    gl_Position = vec4(in_Position.xy, 0, 1);\n"
-                                     "    texCoords = in_Position.zw;\n"
-                                     "}\n";
 
 const char *FontType::fragmentShader = ""
                                        "#version 410 core\n"
@@ -27,6 +19,15 @@ const char *FontType::fragmentShader = ""
                                        "void main(void) {\n"
                                        "    fragColor = vec4(1, 1, 1, texture(tex, texCoords).r) * color;\n"
                                        "}\n";
+
+const char *FontType::vertexShader = ""
+                                     "#version 410 core\n"
+                                     "in vec4 in_Position;\n"
+                                     "out vec2 texCoords;\n"
+                                     "void main(void) {\n"
+                                     "    gl_Position = vec4(in_Position.xy, 0, 1);\n"
+                                     "    texCoords = in_Position.zw;\n"
+                                     "}\n";
 
 void FontType::RenderText(const std::string &str, const FT_Face fc, float x, float y, const float sx, const float sy) // NOLINT(*-misplaced-const)
 {
@@ -50,7 +51,7 @@ void FontType::RenderText(const std::string &str, const FT_Face fc, float x, flo
         const float w = static_cast<float>(glyph->bitmap.width) * sx;
         const float h = static_cast<float>(glyph->bitmap.rows) * sy;
 
-        struct
+        const struct
         {
             float x, y, s, t;
         } data[6] = {{vx, vy, 0, 0}, {vx, vy - h, 0, 1}, {vx + w, vy, 1, 0}, {vx + w, vy, 1, 0}, {vx, vy - h, 0, 1}, {vx + w, vy - h, 1, 1}};
@@ -68,7 +69,7 @@ void FontType::RenderText(const std::string &str, const FT_Face fc, float x, flo
         glEnable(GL_CULL_FACE);
 }
 
-FontType::FontType(const float screenWidth, const float screenHeight, std::string fontPath, const float scaleFactor) : fontPath(std::move(fontPath))
+FontType::FontType(const float screenWidth, const float screenHeight, std::string fontPath, const float scaleFactor) : scaleFactor(scaleFactor), fontPath(std::move(fontPath))
 {
     scaleX = scaleFactor / screenWidth;
     scaleY = scaleFactor / screenHeight;
@@ -112,6 +113,20 @@ void FontType::Init()
     colorUniform = glGetUniformLocation(program, "color");
 }
 
+FontType &FontType::SetColor(const glm::vec4 newColor)
+{
+    color = newColor;
+    return *this;
+}
+
+FontType &FontType::SetScale(const float newScale, const float width, const float height)
+{
+    this->scaleFactor = newScale;
+    scaleX = scaleFactor / width;
+    scaleY = scaleFactor / height;
+    return *this;
+}
+
 void FontType::Render(const float x, const float y, const std::string &str) const
 {
     glActiveTexture(GL_TEXTURE0);
@@ -122,7 +137,7 @@ void FontType::Render(const float x, const float y, const std::string &str) cons
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glUseProgram(program);
 
-    glUniform4f(static_cast<GLint>(colorUniform), 1.0f, 1.0f, 1.0f, 1.0f);
+    glUniform4fv(static_cast<GLint>(colorUniform), 1, glm::value_ptr(color));
 
     glUniform1i(static_cast<GLint>(texUniform), 0);
 
