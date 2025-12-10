@@ -46,15 +46,22 @@ void FontType::RenderText(const std::string &str, const FT_Face fc, float x, flo
                      static_cast<GLsizei>(glyph->bitmap.rows), 0, GL_RED, GL_UNSIGNED_BYTE,
                      glyph->bitmap.buffer);
 
-        const float vx = x + static_cast<float>(glyph->bitmap_left) * sx;
-        const float vy = y - static_cast<float>(glyph->bitmap_top) * sy;
+        const float xpos = x + static_cast<float>(glyph->bitmap_left) * sx;
+        const float ypos = y - (static_cast<float>(glyph->bitmap.rows) - static_cast<float>(glyph->bitmap_top)) * sy;
         const float w = static_cast<float>(glyph->bitmap.width) * sx;
         const float h = static_cast<float>(glyph->bitmap.rows) * sy;
 
         const struct
         {
             float x, y, s, t;
-        } data[6] = {{vx, vy, 0, 0}, {vx, vy - h, 0, 1}, {vx + w, vy, 1, 0}, {vx + w, vy, 1, 0}, {vx, vy - h, 0, 1}, {vx + w, vy - h, 1, 1}};
+        } data[6] = {
+            {xpos, ypos, 0, 1},
+            {xpos, ypos + h, 0, 0},
+            {xpos + w, ypos + h, 1, 0},
+
+            {xpos, ypos, 0, 1},
+            {xpos + w, ypos + h, 1, 0},
+            {xpos + w, ypos, 1, 1}};
 
         glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), data, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
