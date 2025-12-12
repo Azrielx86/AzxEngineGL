@@ -37,7 +37,16 @@ void Model::LoadModel(const char *path)
     LoadNode(scene->mRootNode, scene);
 
     for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
+    {
         animations.emplace_back(scene->mAnimations[i], scene, *this);
+#if defined(DEBUG) || defined(ENABLE_LOG)
+        std::cout << std::format("[Model: {}] found animation {} with index {}.\n", modelPath, scene->mAnimations[i]->mName.C_Str(), i);
+#endif
+    }
+
+#if defined(DEBUG) || defined(ENABLE_LOG)
+    std::cout << std::format("Model {} has {} animations.\n", modelPath, animations.size());
+#endif
 }
 
 void Model::LoadNode(const aiNode *pNode, const aiScene *pScene) // NOLINT(*-no-recursion)

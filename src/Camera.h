@@ -11,7 +11,7 @@
 
 class Camera
 {
-  private:
+    bool locked = false;
 	glm::vec3 position;
 	glm::vec3 front{};
 	glm::vec3 up{};
@@ -39,6 +39,8 @@ class Camera
 	glm::mat4 GetLookAt();
 	void SetMoveSpeed(float moveSpeed);
 	void SetTurnSpeed(float turnSpeed);
+    void Lock();
+    void Unlock();
 };
 
 #endif // SHADERPLAYGROUND_CAMERA_H

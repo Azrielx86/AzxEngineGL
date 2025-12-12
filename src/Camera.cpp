@@ -20,6 +20,11 @@ void Camera::SetInput(Input::Keyboard *kb, Input::Mouse *ms)
 
 void Camera::Move(float deltaTime)
 {
+    if (locked)
+    {
+        Update();
+        return;
+    }
 	const auto velocity = moveSpeed * deltaTime;
 	if (keyboard->GetKeyPress(GLFW_KEY_W))
 		position += front * velocity;
@@ -41,7 +46,7 @@ void Camera::Move(float deltaTime)
 		pitch = 89.0f;
 	if (pitch < -89.0f)
 		pitch = -89.0f;
-	
+
 	Update();
 }
 
@@ -67,6 +72,16 @@ glm::mat4 Camera::GetLookAt()
 void Camera::SetMoveSpeed(const float moveSpeed) { this->moveSpeed = moveSpeed; }
 
 void Camera::SetTurnSpeed(const float turnSpeed) { this->turnSpeed = turnSpeed; }
+
+void Camera::Lock()
+{
+    locked = true;
+}
+
+void Camera::Unlock()
+{
+    locked = false;
+}
 
 float Camera::GetPitch() const
 {
