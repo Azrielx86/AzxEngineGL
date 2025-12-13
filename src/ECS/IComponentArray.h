@@ -13,6 +13,7 @@ class IComponentArray
   public:
     virtual ~IComponentArray() = default;
     virtual void RemoveEntity(Entity entity) = 0;
+    virtual void Reset() = 0;
     [[nodiscard]] virtual bool HasComponent(Entity entity) const = 0;
 };
 } // namespace ECS

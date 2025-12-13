@@ -31,6 +31,8 @@ class ComponentArray final : public IComponentArray
 
     bool HasComponent(Entity entity) const override;
 
+    void Reset() override;
+
     ~ComponentArray() override;
 };
 
@@ -83,6 +85,14 @@ template <typename T>
 bool ComponentArray<T>::HasComponent(const Entity entity) const
 {
     return entityToIndex.contains(entity);
+}
+
+template <typename T>
+void ComponentArray<T>::Reset()
+{
+    entityToIndex.clear();
+    indexToEntity.clear();
+    size = 0;
 }
 
 template <typename T>

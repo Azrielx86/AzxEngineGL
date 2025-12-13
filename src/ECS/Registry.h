@@ -29,22 +29,9 @@ class Registry
   public:
     [[nodiscard]] Entity CreateEntity();
 
-    void DestroyEntity(Entity entity)
-    {
-        if (!entitySignature.contains(entity))
-        {
-            std::cout << std::format("Entity {} does not exists!\n", entity);
-            return;
-        }
+    void DestroyEntity(Entity entity);
 
-        for (auto componentIndex : entitySignature[entity])
-        {
-            const auto component = componentArrays[componentIndex];
-            component->RemoveEntity(entity);
-        }
-
-        entitySignature.erase(entity);
-    }
+    void Reset();
 
     template <typename T>
     void RegisterComponent();
