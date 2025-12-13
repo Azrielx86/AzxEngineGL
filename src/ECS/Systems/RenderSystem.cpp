@@ -51,6 +51,7 @@ void RenderSystem::Update(Registry &registry, [[maybe_unused]] float deltaTime)
 void RenderSystem::RenderEntity(Registry &registry, const Entity entity)
 {
     auto &[model, shader] = registry.GetComponent<Components::MeshRenderer>(entity);
+    shader->Use();
     const auto uModel = shader->GetUniformLocation("model");
     shader->Set<4, 4>(uModel, GetWorldTransform(registry, entity));
     model->Render(*shader);

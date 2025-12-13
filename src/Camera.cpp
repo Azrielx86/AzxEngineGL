@@ -3,6 +3,7 @@
 //
 
 #include "Camera.h"
+#include "Input/Joystick.h"
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
 
@@ -18,30 +19,61 @@ void Camera::SetInput(Input::Keyboard *kb, Input::Mouse *ms)
 	mouse = ms;
 }
 
+void Camera::SetInput(Input::Keyboard *kb, Input::Mouse *ms, Input::Joystick *js)
+{
+	keyboard = kb;
+	mouse = ms;
+	joystick = js;
+}
+
 void Camera::Move(float deltaTime)
 {
+    if (locked)
+    {
+        Update();
+        return;
+    }
 	const auto velocity = moveSpeed * deltaTime;
 	if (keyboard->GetKeyPress(GLFW_KEY_W))
-		position += front * velocity * deltaTime;
+		position += front * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_S))
-		position -= front * velocity * deltaTime;
+		position -= front * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_A))
-		position -= right * velocity * deltaTime;
+		position -= right * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_D))
-		position += right * velocity * deltaTime;
+		position += right * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_E))
-		position.y += 1.0f * velocity * deltaTime;
+		position.y += 1.0f * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_Q))
-		position.y -= 1.0f * velocity * deltaTime;
+		position.y -= 1.0f * velocity;
 
-	yaw += (float) mouse->GetChangex() * turnSpeed * deltaTime;
-	pitch += (float) mouse->GetChangey() * turnSpeed * deltaTime;
+	if (joystick)
+	{
+		float leftStickY = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_LEFT_Y);
+		if (std::abs(leftStickY) > 0.1f)
+			position += front * velocity * -leftStickY;
+
+		float leftStickX = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_LEFT_X);
+		if (std::abs(leftStickX) > 0.1f)
+			position += right * velocity * leftStickX;
+
+		float rightStickX = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_RIGHT_X);
+		if (std::abs(rightStickX) > 0.1f)
+			yaw += rightStickX * (turnSpeed * deltaTime * 100.0f);
+
+		float rightStickY = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+		if (std::abs(rightStickY) > 0.1f)
+			pitch += -rightStickY * (turnSpeed * deltaTime * 100.0f);
+	}
+
+	yaw += (float) mouse->GetChangex() * (turnSpeed * deltaTime);
+	pitch += (float) mouse->GetChangey() * (turnSpeed * deltaTime);
 
 	if (pitch > 89.0f)
 		pitch = 89.0f;
 	if (pitch < -89.0f)
 		pitch = -89.0f;
-	
+
 	Update();
 }
 
@@ -67,6 +99,16 @@ glm::mat4 Camera::GetLookAt()
 void Camera::SetMoveSpeed(const float moveSpeed) { this->moveSpeed = moveSpeed; }
 
 void Camera::SetTurnSpeed(const float turnSpeed) { this->turnSpeed = turnSpeed; }
+
+void Camera::Lock()
+{
+    locked = true;
+}
+
+void Camera::Unlock()
+{
+    locked = false;
+}
 
 float Camera::GetPitch() const
 {

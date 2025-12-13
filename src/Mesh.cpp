@@ -101,6 +101,14 @@ void Mesh::Render(const Shader &shader) const
         glBindTexture(GL_TEXTURE_2D, texture->id);
     }
 
+    if ((enabled_textures & DIFFUSE) == 0)
+    {
+        shader.Set("texture_diffuse", static_cast<int>(texture_idx));
+        glActiveTexture(GL_TEXTURE0 + texture_idx);
+        glBindTexture(GL_TEXTURE_2D, defaultResources.diffuse);
+        texture_idx++;
+    }
+
     if ((enabled_textures & NORMAL) == 0)
     {
         shader.Set("texture_normal", static_cast<int>(texture_idx));

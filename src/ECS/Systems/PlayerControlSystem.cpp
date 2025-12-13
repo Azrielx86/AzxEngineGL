@@ -20,11 +20,12 @@ void PlayerControlSystem::Update(Registry &registry, float deltaTime)
 
     for (const Entity &entity : registry.View<Components::PlayerController, Components::Transform>())
     {
-#warning Fix this later. Player cant move anymore after it collided.
+
+        /*#warning Fix this later. Player cant move anymore after it collided.
         if (const auto collider = Components::GetCollider(registry, entity); collider != nullptr)
         {
             if (collider->isColliding) continue;
-        }
+        }*/
 
         auto &transform = registry.GetComponent<Components::Transform>(entity);
         const auto &control = registry.GetComponent<Components::PlayerController>(entity);

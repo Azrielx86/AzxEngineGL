@@ -6,6 +6,7 @@
 #define POINTLIGHT_H
 
 #include <glm/glm.hpp>
+#include <GL/glew.h>
 
 namespace Lights
 {

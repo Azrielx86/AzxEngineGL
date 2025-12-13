@@ -13,21 +13,21 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
     const auto sbbEntities = registry.View<Components::Transform, Components::SBBCollider>();
     const auto obbEntities = registry.View<Components::Transform, Components::OBBCollider>();
 
-    for (const Entity& entity : aabbEntities)
+    for (const Entity &entity : aabbEntities)
     {
-        auto &collider = registry.GetComponent<Components::OBBCollider>(entity);
+        auto &collider = registry.GetComponent<Components::AABBCollider>(entity);
         collider.isColliding = false;
         collider.collidingEntities.clear();
     }
 
-    for (const Entity& entity : sbbEntities)
+    for (const Entity &entity : sbbEntities)
     {
-        auto &collider = registry.GetComponent<Components::OBBCollider>(entity);
+        auto &collider = registry.GetComponent<Components::SBBCollider>(entity);
         collider.isColliding = false;
         collider.collidingEntities.clear();
     }
 
-    for (const Entity& entity : obbEntities)
+    for (const Entity &entity : obbEntities)
     {
         auto &collider = registry.GetComponent<Components::OBBCollider>(entity);
         collider.isColliding = false;
@@ -39,10 +39,10 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
      */
     for (size_t i = 0; i < aabbEntities.size(); ++i)
     {
+        Entity entityA = aabbEntities[i];
         for (size_t j = 0; j < aabbEntities.size(); ++j)
         {
             if (i == j) continue;
-            Entity entityA = aabbEntities[i];
             Entity entityB = aabbEntities[j];
 
             auto &colliderA = registry.GetComponent<Components::AABBCollider>(entityA);
@@ -51,12 +51,11 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
             auto &colliderB = registry.GetComponent<Components::AABBCollider>(entityB);
             auto &transformB = registry.GetComponent<Components::Transform>(entityB);
 
-            const bool collision = CheckCollision(colliderA, transformA, colliderB, transformB);
-
-#if ENABLE_LOG
-            if (collision)
-                std::cout << std::format("AABB vs AABB Collision by entities {} and {}\n", entityA, entityB);
-#endif
+            if (CheckCollision(colliderA, transformA, colliderB, transformB))
+            {
+                colliderA.isColliding = true;
+                colliderA.collidingEntities.push_back(entityB);
+            }
         }
     }
 
@@ -77,12 +76,11 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
             auto &colliderB = registry.GetComponent<Components::SBBCollider>(entityB);
             auto &transformB = registry.GetComponent<Components::Transform>(entityB);
 
-            const bool collision = CheckCollision(colliderA, transformA, colliderB, transformB);
-
-#if ENABLE_LOG
-            if (collision)
-                std::cout << std::format("SBB vs SBB Collision by entities {} and {}\n", entityA, entityB);
-#endif
+            if (CheckCollision(colliderA, transformA, colliderB, transformB))
+            {
+                colliderA.isColliding = true;
+                colliderA.collidingEntities.push_back(entityB);
+            }
         }
     }
 
@@ -106,9 +104,6 @@ void ECS::Systems::CollisionSystem::Update(Registry &registry, [[maybe_unused]] 
             {
                 colliderA.isColliding = true;
                 colliderA.collidingEntities.push_back(obbEntityB);
-#if ENABLE_LOG
-                std::cout << std::format("OBB vs OBB Collision by entities {} and {}\n", obbEntityA, obbEntityB);
-#endif
             }
         }
     }

@@ -9,16 +9,19 @@
 #include <iostream>
 #include <regex>
 
-Model::Model(const char *path)
+Model::Model(const char *path) : modelPath(path)
 {
-    LoadModel(path);
+}
+
+void Model::Load()
+{
+    LoadModel(modelPath.c_str());
     for (Mesh &mesh : meshes)
         mesh.Load();
 }
 
 void Model::LoadModel(const char *path)
 {
-    modelPath = path;
     auto importer = Assimp::Importer();
     const auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace);
 
@@ -34,7 +37,16 @@ void Model::LoadModel(const char *path)
     LoadNode(scene->mRootNode, scene);
 
     for (unsigned int i = 0; i < scene->mNumAnimations; ++i)
+    {
         animations.emplace_back(scene->mAnimations[i], scene, *this);
+#if defined(DEBUG) || defined(ENABLE_LOG)
+        std::cout << std::format("[Model: {}] found animation {} with index {}.\n", modelPath, scene->mAnimations[i]->mName.C_Str(), i);
+#endif
+    }
+
+#if defined(DEBUG) || defined(ENABLE_LOG)
+    std::cout << std::format("Model {} has {} animations.\n", modelPath, animations.size());
+#endif
 }
 
 void Model::LoadNode(const aiNode *pNode, const aiScene *pScene) // NOLINT(*-no-recursion)
@@ -101,7 +113,7 @@ void Model::LoadMesh(const aiMesh *mesh, [[maybe_unused]] const aiScene *aiScene
         }
     }
 
-    Mesh& insertedMesh = meshes.emplace_back(vertices, faces, textures, material);
+    Mesh &insertedMesh = meshes.emplace_back(vertices, faces, textures, material);
     insertedMesh.SetAlphaProperties(hasTransparency);
 }
 
@@ -109,7 +121,7 @@ void Model::Render(Shader &shader)
 {
     shader.Set("numBones", boneCounter);
 
-    std::vector<Mesh*> transparentMeshes;
+    std::vector<Mesh *> transparentMeshes;
 
     for (Mesh &mesh : meshes)
     {
@@ -173,6 +185,7 @@ std::vector<std::shared_ptr<Resources::Texture>> Model::LoadMaterialTextures(con
         }
         auto texName = results[0].str();
         auto texture = Resources::ResourceManager::GetInstance()->GetTexture(texName);
+        if (!texture) continue;
         if (texture->type == aiTextureType_NONE) // TODO : Handle multiple texture types.
             texture->type = type;
         textures.push_back(texture);
