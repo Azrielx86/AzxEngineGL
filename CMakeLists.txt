@@ -181,6 +181,10 @@ add_library(AzxEngineGL STATIC
         src/Lights/DirectionalLight.h
         src/FontType.cpp
         src/FontType.h
+        src/DepthCubemap.cpp
+        src/DepthCubemap.h
+        src/DepthMap.cpp
+        src/DepthMap.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
