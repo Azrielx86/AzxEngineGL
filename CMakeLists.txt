@@ -132,6 +132,8 @@ add_library(AzxEngineGL STATIC
         src/Camera.cpp
         src/Input/Keyboard.cpp
         src/Input/Keyboard.h
+        src/Input/Joystick.cpp
+        src/Input/Joystick.h
         src/Mesh.cpp
         src/Mesh.h
         src/Model.cpp

@@ -3,6 +3,7 @@
 //
 
 #include "Camera.h"
+#include "Input/Joystick.h"
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
 
@@ -16,6 +17,13 @@ void Camera::SetInput(Input::Keyboard *kb, Input::Mouse *ms)
 {
 	keyboard = kb;
 	mouse = ms;
+}
+
+void Camera::SetInput(Input::Keyboard *kb, Input::Mouse *ms, Input::Joystick *js)
+{
+	keyboard = kb;
+	mouse = ms;
+	joystick = js;
 }
 
 void Camera::Move(float deltaTime)
@@ -38,6 +46,25 @@ void Camera::Move(float deltaTime)
 		position.y += 1.0f * velocity;
 	if (keyboard->GetKeyPress(GLFW_KEY_Q))
 		position.y -= 1.0f * velocity;
+
+	if (joystick)
+	{
+		float leftStickY = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_LEFT_Y);
+		if (std::abs(leftStickY) > 0.1f)
+			position += front * velocity * -leftStickY;
+
+		float leftStickX = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_LEFT_X);
+		if (std::abs(leftStickX) > 0.1f)
+			position += right * velocity * leftStickX;
+
+		float rightStickX = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_RIGHT_X);
+		if (std::abs(rightStickX) > 0.1f)
+			yaw += rightStickX * (turnSpeed * deltaTime * 100.0f);
+
+		float rightStickY = joystick->GetAxisState(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+		if (std::abs(rightStickY) > 0.1f)
+			pitch += -rightStickY * (turnSpeed * deltaTime * 100.0f);
+	}
 
 	yaw += (float) mouse->GetChangex() * (turnSpeed * deltaTime);
 	pitch += (float) mouse->GetChangey() * (turnSpeed * deltaTime);

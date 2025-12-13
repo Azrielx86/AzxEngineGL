@@ -7,6 +7,7 @@
 
 #include "Input/Keyboard.h"
 #include "Input/Mouse.h"
+#include "Input/Joystick.h"
 #include <glm/glm.hpp>
 
 class Camera
@@ -26,10 +27,12 @@ class Camera
 
 	Input::Keyboard *keyboard{};
 	Input::Mouse *mouse{};
+	Input::Joystick *joystick{};
 
   public:
 	Camera(glm::vec3 startPosition, glm::vec3 startUp, float startYaw = -90.0f, float startPitch = 0.0f, float moveSpeed = 0.7f, float turnSpeed = 0.5f);
 	void SetInput(Input::Keyboard *kb, Input::Mouse *ms);
+	void SetInput(Input::Keyboard *kb, Input::Mouse *ms, Input::Joystick *js);
 	void Move(float deltaTime);
 	void Update();
 	[[nodiscard]] float GetPitch() const;
