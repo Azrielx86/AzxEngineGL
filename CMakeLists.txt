@@ -37,12 +37,28 @@ if (VCPKG_TOOLCHAIN)
     find_package(GLEW REQUIRED)
     find_package(glfw3 CONFIG REQUIRED)
     find_package(glm CONFIG REQUIRED)
-    find_package(assimp CONFIG REQUIRED)
     find_package(Stb REQUIRED)
     find_package(imgui CONFIG REQUIRED)
     find_package(FreeALUT CONFIG REQUIRED)
     find_package(OpenAL CONFIG REQUIRED)
     find_package(Freetype CONFIG REQUIRED)
+
+    # If Assimp from vcpkg is bugged and u dont want to compile it and install system-wide.
+    # Also useful if your debugger is not loading the debug symbols.
+    if (FETCH_EXTERNAL_ASSIMP)
+        message(STATUS "Using external Assimp.")
+        #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nontrivial-memcall")
+        FetchContent_Declare(assimp
+                GIT_REPOSITORY https://github.com/assimp/assimp.git
+                GIT_TAG v6.0.2)
+        set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+        set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+        set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
+        set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(assimp)
+    else ()
+        find_package(assimp REQUIRED)
+    endif ()
 
     include_directories(${Stb_INCLUDE_DIR})
 else ()
