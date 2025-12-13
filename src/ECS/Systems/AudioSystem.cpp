@@ -13,43 +13,17 @@ namespace ECS::Systems {
 // Private implementation class for OpenAL context
 class AudioSystem::AudioEngine {
 public:
-    ALCdevice* device = nullptr;
-    ALCcontext* context = nullptr;
-
     AudioEngine() {
-        device = alcOpenDevice(nullptr);
-        if (!device) {
-            std::cerr << "ERROR: Failed to open OpenAL device." << std::endl;
-            return;
+        // alutInit will create a context and make it current
+        if (alutInit(0, nullptr) == AL_FALSE) {
+            std::cerr << "ERROR: alutInit failed: " << alutGetErrorString(alutGetError()) << std::endl;
+        } else {
+            std::cout << "OpenAL Initialized: " << alGetString(AL_VERSION) << std::endl;
         }
-
-        context = alcCreateContext(device, nullptr);
-        if (!context) {
-            std::cerr << "ERROR: Failed to create OpenAL context." << std::endl;
-            alcCloseDevice(device);
-            return;
-        }
-
-        if (!alcMakeContextCurrent(context)) {
-            std::cerr << "ERROR: Failed to make OpenAL context current." << std::endl;
-            alcDestroyContext(context);
-            alcCloseDevice(device);
-            return;
-        }
-
-        alutInit(0, nullptr);
-        std::cout << "OpenAL Initialized: " << alGetString(AL_VERSION) << std::endl;
     }
 
     ~AudioEngine() {
         alutExit();
-        if (context) {
-            alcMakeContextCurrent(nullptr);
-            alcDestroyContext(context);
-        }
-        if (device) {
-            alcCloseDevice(device);
-        }
     }
 };
 
@@ -69,11 +43,6 @@ void AudioSystem::Update(Registry& registry, [[maybe_unused]] float deltaTime) {
             
             // Orientation: first 'at' vector, then 'up' vector
             // TODO: Need to get the forward and up vectors from the transform component
-            // glm::vec3 forward = transform.rotation * glm::vec3(0, 0, -1);
-            // glm::vec3 up = transform.rotation * glm::vec3(0, 1, 0);
-            // ALfloat orientation[] = { forward.x, forward.y, forward.z, up.x, up.y, up.z };
-            // alListenerfv(AL_ORIENTATION, orientation);
-            
             // For now, static orientation
             ALfloat orientation[] = { 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f };
             alListenerfv(AL_ORIENTATION, orientation);
@@ -90,19 +59,36 @@ void AudioSystem::Update(Registry& registry, [[maybe_unused]] float deltaTime) {
         auto& transform = registry.GetComponent<Components::Transform>(entity);
 
         if (source.isDirty) {
-            if (source.filePath && source.buffer == 0) {
-                source.buffer = alutCreateBufferFromFile(source.filePath);
-                if (source.buffer == AL_NONE) {
-                    std::cerr << "Error loading audio file: " << alutGetErrorString(alutGetError()) << std::endl;
+            if (source.filePath) {
+                // Clear any previous error
+                alGetError(); 
+                
+                ALuint newBuffer = alutCreateBufferFromFile(source.filePath);
+                ALenum error = alutGetError();
+                if (error != ALUT_ERROR_NO_ERROR) {
+                    std::cerr << "Error loading audio file '" << source.filePath << "': " << alutGetErrorString(error) << std::endl;
                 } else {
-                    alGenSources(1, &source.source);
+                    if (source.source == 0) {
+                        alGenSources(1, &source.source);
+                    }
+                    
+                    // Stop the source before changing the buffer
+                    alSourceStop(source.source);
+
+                    // If there was an old buffer, delete it
+                    if (source.buffer != 0) {
+                        alDeleteBuffers(1, &source.buffer);
+                    }
+                    source.buffer = newBuffer;
+                    
                     alSourcei(source.source, AL_BUFFER, source.buffer);
+                    alSourcef(source.source, AL_PITCH, source.pitch);
+                    alSourcef(source.source, AL_GAIN, source.gain);
+                    alSourcei(source.source, AL_LOOPING, source.loop);
+                    
+                    alSourcePlay(source.source);
                 }
             }
-            
-            alSourcef(source.source, AL_PITCH, source.pitch);
-            alSourcef(source.source, AL_GAIN, source.gain);
-            alSourcei(source.source, AL_LOOPING, source.loop);
             source.isDirty = false;
         }
 
