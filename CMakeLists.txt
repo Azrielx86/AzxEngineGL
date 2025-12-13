@@ -201,6 +201,10 @@ add_library(AzxEngineGL STATIC
         src/DepthCubemap.h
         src/DepthMap.cpp
         src/DepthMap.h
+        src/ECS/Systems/AudioSystem.cpp
+        src/ECS/Systems/AudioSystem.h
+        src/ECS/Components/AudioListener.h
+        src/ECS/Components/AudioSource.h
 )
 
 target_include_directories(AzxEngineGL PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
