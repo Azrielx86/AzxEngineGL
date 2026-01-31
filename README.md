@@ -2,9 +2,6 @@
 
 This is my _home made_ graphics engine library.
 
-Based on my [OpenGL Playground](https://github.com/Azrielx86/OpenGL_Playground_Base) project to use it on multiple
-programs.
-
 ## How to use
 
 Just add it in your project library like this.
@@ -34,3 +31,13 @@ target_link_libraries(Example PRIVATE AzxEngineGL)
 - [ ] SSAO
 - [x] Grid floor
 - [ ] Particle system
+
+## My Projects using this
+
+### [OpenGL Playground](https://github.com/Azrielx86/OpenGL_Playground)
+This is the project where I develop and test it.
+![OpenGL Playground Image](https://github.com/Azrielx86/OpenGL_Playground/raw/main/docs/img/window.png)
+
+### [Advanced Computer Graphics Final Project](https://github.com/Azrielx86/ProyectoFinal_CGA)
+An endless runner game.
+![CGA Image](https://github.com/Azrielx86/ProyectoFinal_CGA/raw/main/docs/debug.png)
